@@ -3,6 +3,11 @@ Be sure you have minitorch installed in you Virtual Env.
 >>> pip install -Ue .
 """
 
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import minitorch
 
 
@@ -22,7 +27,10 @@ class Network(minitorch.Module):
 
     def forward(self, x):
         # TODO: Implement for Task 2.5.
-        raise NotImplementedError("Need to implement for Task 2.5")
+        # raise NotImplementedError("Need to implement for Task 2.5")
+        middle = self.layer1.forward(x).relu()
+        end = self.layer2.forward(middle).relu()
+        return self.layer3.forward(end).sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -34,7 +42,14 @@ class Linear(minitorch.Module):
 
     def forward(self, x):
         # TODO: Implement for Task 2.5.
-        raise NotImplementedError("Need to implement for Task 2.5")
+        # raise NotImplementedError("Need to implement for Task 2.5")
+        x = x.view(*x.shape, 1)
+        w = self.weights.value.view(1, *self.weights.value.shape)
+        x = x * w
+        a = x.sum(1)
+        a = a.view(x.shape[0], self.out_size)
+        a = a + self.bias.value.view(1, *self.bias.value.shape)
+        return a
 
 
 def default_log_fn(epoch, total_loss, correct, losses):
